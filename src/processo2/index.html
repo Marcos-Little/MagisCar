@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MagisCar – Cadastro de estoque</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/magiscar.css">
+  <script src="../js/auth.js"></script>
+  <script>MagisAuth.proteger("estoque");</script>
+</head>
+<body>
+
+  <!-- topo da pagina (menu e usuário são montados pelo auth.js conforme o perfil) -->
+  <header class="barra-magiscar">
+    <a href="#" class="logo" id="logo">MagisCar</a>
+    <nav class="menu" data-atual="estoque"></nav>
+    <div class="usuario"></div>
+  </header>
+
+  <main class="conteudo">
+    <p class="trilha">Processo 2 · Cadastro de estoque › <strong id="trilha-tela">Pesquisar item</strong></p>
+
+    <!-- pesquisar -->
+    <section class="tela ativa" id="tela-pesquisar" data-titulo="Pesquisar item">
+      <h1>Pesquisar item</h1>
+
+      <form id="form-pesquisa" class="grade grade-pesquisa" novalidate>
+        <div class="campo">
+          <label for="criterio">Critério de busca</label>
+          <select id="criterio" class="lista">
+            <option value="descricao" selected>Descrição</option>
+            <option value="codigo">Código</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="termo">Termo de busca <span class="obrig">*</span></label>
+          <div class="caixa-busca">
+            <input type="text" id="termo" placeholder="Digite no mínimo 3 caracteres..." autocomplete="off">
+            <img src="../img/search.svg" alt="" width="11" height="11">
+          </div>
+          <small class="erro" data-erro-de="termo"></small>
+        </div>
+        <div class="comandos comandos-inline">
+          <button type="submit" class="botao">Pesquisar</button>
+          <button type="button" class="botao secundario" id="btn-limpar">Limpar</button>
+        </div>
+      </form>
+
+      <h2>Resultados</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-resultados">
+          <thead>
+            <tr><th class="col-sel">Sel.</th><th>Código</th><th>Descrição</th><th>Categoria</th><th>Marca/Fabricante</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="dica" id="dica-resultados"></p>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-selecionar" disabled>Selecionar item</button>
+        <button type="button" class="botao secundario" id="btn-novo-item">Cadastrar novo item</button>
+        <button type="button" class="botao secundario" id="btn-cancelar-processo">Cancelar</button>
+      </div>
+    </section>
+
+      <!-- catastro e atualização de itens -->
+    <section class="tela" id="tela-item" data-titulo="Cadastrar item">
+      <h1>Dados do item</h1>
+      <p class="aviso-leitura" id="i-leitura" hidden>Somente consulta: o cadastro e a entrada de itens são feitos pelo administrador.</p>
+      <form id="form-item" class="grade grade-2" novalidate>
+        <div class="campo">
+          <label for="i-codigo">Código do item <span class="dica-campo" id="i-codigo-dica">(gerado automaticamente)</span></label>
+          <input type="text" id="i-codigo" readonly>
+        </div>
+        <div class="campo">
+          <label for="i-descricao">Descrição <span class="obrig">*</span></label>
+          <input type="text" id="i-descricao" maxlength="100" placeholder="Descreva o item...">
+          <small class="erro" data-erro-de="i-descricao"></small>
+        </div>
+        <div class="campo">
+          <label for="i-categoria">Categoria <span class="obrig">*</span></label>
+          <select id="i-categoria" class="lista">
+            <option selected>Peça</option>
+            <option>Material de consumo</option>
+            <option>Ferramenta</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="i-marca">Marca/Fabricante</label>
+          <input type="text" id="i-marca" maxlength="50" placeholder="Digite a marca...">
+        </div>
+        <div class="campo">
+          <label for="i-custo">Preço de custo</label>
+          <input type="text" id="i-custo" inputmode="numeric" data-mascara="moeda">
+          <small class="erro" data-erro-de="i-custo"></small>
+        </div>
+        <div class="campo">
+          <label for="i-venda">Preço de venda</label>
+          <input type="text" id="i-venda" inputmode="numeric" data-mascara="moeda">
+          <small class="erro" data-erro-de="i-venda"></small>
+        </div>
+        <div class="campo">
+          <label for="i-localizacao">Localização</label>
+          <input type="text" id="i-localizacao" maxlength="50" placeholder="Ex.: Prateleira A-3">
+        </div>
+        <div class="campo">
+          <label for="i-fornecedor">Fornecedor padrão <span class="obrig">*</span></label>
+          <div class="campo-acao">
+            <select id="i-fornecedor" class="lista"></select>
+            <button type="button" class="botao secundario" id="btn-cadastrar-fornecedor">Cadastrar fornecedor</button>
+          </div>
+          <small class="erro" data-erro-de="i-fornecedor"></small>
+        </div>
+        <div class="campo">
+          <label for="i-minimo">Quantidade mínima</label>
+          <input type="number" id="i-minimo" min="0" step="any" value="0">
+          <small class="dica-campo">Abaixo dessa quantidade o sistema emite alerta de estoque.</small>
+          <small class="erro" data-erro-de="i-minimo"></small>
+        </div>
+        <div class="campo" id="campo-saldo">
+          <label for="i-saldo">Saldo atual</label>
+          <input type="text" id="i-saldo" readonly>
+          <small class="dica-campo">O saldo só muda pelo registro de entrada.</small>
+        </div>
+        <div class="campo">
+          <span class="rotulo">Foto do item</span>
+          <div class="upload">
+            <label for="i-foto" class="botao secundario">Escolher arquivo</label>
+            <input type="file" id="i-foto" accept="image/jpeg,image/png" hidden>
+            <span id="i-foto-nome" class="nome-arquivo">Nenhum arquivo</span>
+          </div>
+          <small class="dica-campo">JPG ou PNG (máx. 5 MB)</small>
+          <small class="erro" data-erro-de="i-foto"></small>
+          <img id="i-foto-previa" class="previa" alt="Prévia da foto do item" hidden>
+        </div>
+      </form>
+      <p class="dica" id="i-dica-obrig">Campos com <span class="obrig">*</span> são obrigatórios.</p>
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-salvar-item">Salvar</button>
+        <button type="button" class="botao secundario" id="btn-concluir-item">Concluir</button>
+        <button type="button" class="botao secundario" data-ir="tela-pesquisar" id="btn-cancelar-item">Cancelar</button>
+      </div>
+    </section>
+
+      <!-- cadastro de fornecedor -->
+    <section class="tela" id="tela-fornecedor" data-titulo="Cadastrar fornecedor">
+      <h1>Dados do fornecedor</h1>
+      <form id="form-fornecedor" class="grade grade-2" novalidate>
+        <div class="campo">
+          <label for="f-nome">Nome <span class="obrig">*</span></label>
+          <input type="text" id="f-nome" maxlength="100" placeholder="Digite o nome...">
+          <small class="erro" data-erro-de="f-nome"></small>
+        </div>
+        <div class="campo">
+          <label for="f-cnpj">CNPJ <span class="obrig">*</span></label>
+          <input type="text" id="f-cnpj" inputmode="numeric" placeholder="00.000.000/0000-00" data-mascara="cnpj">
+          <small class="erro" data-erro-de="f-cnpj"></small>
+        </div>
+        <div class="campo">
+          <label for="f-telefone">Telefone <span class="obrig">*</span></label>
+          <input type="tel" id="f-telefone" placeholder="(00) 00000-0000" data-mascara="telefone">
+          <small class="erro" data-erro-de="f-telefone"></small>
+        </div>
+        <div class="campo">
+          <label for="f-email">E-mail <span class="obrig">*</span></label>
+          <input type="email" id="f-email" maxlength="100" placeholder="exemplo@email.com">
+          <small class="erro" data-erro-de="f-email"></small>
+        </div>
+        <div class="campo campo-largo">
+          <span class="rotulo">Categorias fornecidas <span class="obrig">*</span></span>
+          <div class="opcoes" id="f-categorias">
+            <label><input type="checkbox" value="Peça" checked> Peça</label>
+            <label><input type="checkbox" value="Material de consumo"> Material de consumo</label>
+            <label><input type="checkbox" value="Ferramenta"> Ferramenta</label>
+          </div>
+          <small class="erro" data-erro-de="f-categorias"></small>
+        </div>
+      </form>
+      <p class="dica">Ao salvar, você volta ao cadastro do item com este fornecedor já selecionado.</p>
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-salvar-fornecedor">Salvar</button>
+        <button type="button" class="botao secundario" id="btn-cancelar-fornecedor">Cancelar</button>
+      </div>
+    </section>
+
+      <!-- registro da entrada de item -->
+    <section class="tela" id="tela-entrada" data-titulo="Registrar entrada do item">
+      <h1>Dados da entrada</h1>
+      <form id="form-entrada" class="grade grade-2" novalidate>
+        <div class="campo campo-largo">
+          <label for="e-item">Item</label>
+          <input type="text" id="e-item" readonly>
+        </div>
+        <div class="campo">
+          <label for="e-pedido">Pedido de compra (opcional)</label>
+          <select id="e-pedido" class="lista"></select>
+          <small class="dica-campo" id="e-pedido-dica"></small>
+        </div>
+        <div class="campo">
+          <label for="e-fornecedor">Fornecedor <span class="obrig">*</span></label>
+          <select id="e-fornecedor" class="lista"></select>
+          <small class="erro" data-erro-de="e-fornecedor"></small>
+        </div>
+        <div class="campo">
+          <label for="e-nf">Nº da nota fiscal <span class="obrig">*</span></label>
+          <input type="text" id="e-nf" maxlength="44" placeholder="000000">
+          <small class="erro" data-erro-de="e-nf"></small>
+        </div>
+        <div class="campo">
+          <label for="e-data">Data de recebimento <span class="obrig">*</span></label>
+          <input type="date" id="e-data">
+          <small class="erro" data-erro-de="e-data"></small>
+        </div>
+        <div class="campo">
+          <label for="e-quantidade">Quantidade recebida <span class="obrig">*</span></label>
+          <input type="number" id="e-quantidade" min="0" step="any" placeholder="Digite a quantidade...">
+          <small class="erro" data-erro-de="e-quantidade"></small>
+        </div>
+        <div class="campo">
+          <label for="e-preco">Preço unitário</label>
+          <input type="text" id="e-preco" inputmode="numeric" data-mascara="moeda">
+          <small class="erro" data-erro-de="e-preco"></small>
+        </div>
+        <div class="campo">
+          <span class="rotulo">Nota fiscal digitalizada</span>
+          <div class="upload">
+            <label for="e-arquivo" class="botao secundario">Escolher arquivo</label>
+            <input type="file" id="e-arquivo" accept="application/pdf,image/jpeg,image/png" hidden>
+            <span id="e-arquivo-nome" class="nome-arquivo">Nenhum arquivo</span>
+          </div>
+          <small class="dica-campo">PDF, JPG ou PNG (máx. 10 MB)</small>
+          <small class="erro" data-erro-de="e-arquivo"></small>
+        </div>
+        <div class="campo">
+          <label for="e-obs">Observações</label>
+          <textarea id="e-obs" rows="3" maxlength="300" placeholder="Digite aqui..."></textarea>
+          <small class="contador" id="e-obs-contador">0/300</small>
+        </div>
+      </form>
+
+      <div class="resumo-saldo" id="resumo-saldo"></div>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-confirmar-entrada">Confirmar entrada</button>
+        <button type="button" class="botao secundario" id="btn-confirmar-outro">Confirmar e registrar outro</button>
+        <button type="button" class="botao secundario" data-ir="tela-pesquisar">Cancelar</button>
+      </div>
+    </section>
+  </main>
+
+    <!-- avisos -->
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden>
+    <span class="aviso-icone" id="aviso-icone">✓</span>
+    <span id="aviso-texto"></span>
+  </div>
+
+  <script src="../js/comum.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

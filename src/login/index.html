@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MagisCar – Entrar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/magiscar.css">
+  <script src="../js/auth.js"></script>
+</head>
+<body>
+
+  <header class="barra-magiscar">
+    <span class="logo">MagisCar</span>
+  </header>
+
+  <main class="login-pagina">
+    <section class="tela">
+      <h1>Entrar no sistema</h1>
+      <p class="subtitulo">Informe seu usuário e senha. O acesso depende do seu perfil (administrador, funcionário ou mecânico).</p>
+
+      <form id="form-login" class="grade" novalidate>
+        <div class="campo">
+          <label for="l-login">Usuário <span class="obrig">*</span></label>
+          <input type="text" id="l-login" maxlength="50" autocomplete="username" placeholder="Digite seu usuário...">
+          <small class="erro" data-erro-de="l-login"></small>
+        </div>
+        <div class="campo">
+          <label for="l-senha">Senha <span class="obrig">*</span></label>
+          <input type="password" id="l-senha" maxlength="50" autocomplete="current-password" placeholder="Digite sua senha...">
+          <small class="erro" data-erro-de="l-senha"></small>
+        </div>
+        <button type="submit" class="botao">Entrar</button>
+      </form>
+      <p class="login-erro" id="login-erro" hidden></p>
+
+      <details class="contas-teste">
+        <summary>Contas de teste</summary>
+        <table class="tabela" id="tabela-contas">
+          <thead><tr><th>Perfil</th><th>Usuário</th><th>Senha</th></tr></thead>
+          <tbody>
+            <tr class="clicavel" data-login="admin" data-senha="admin123"><td>Administrador</td><td>admin</td><td>admin123</td></tr>
+            <tr class="clicavel" data-login="funcionario" data-senha="func123"><td>Funcionário</td><td>funcionario</td><td>func123</td></tr>
+            <tr class="clicavel" data-login="carlos" data-senha="mec123"><td>Mecânico</td><td>carlos (ou andre, joao)</td><td>mec123</td></tr>
+          </tbody>
+        </table>
+        <p class="dica">Clique em uma linha para preencher. Só para testes: remover quando houver o back-end.</p>
+      </details>
+    </section>
+  </main>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden>
+    <span class="aviso-icone" id="aviso-icone">✓</span>
+    <span id="aviso-texto"></span>
+  </div>
+
+  <script src="../js/comum.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

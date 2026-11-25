@@ -1,0 +1,6 @@
+# IDEs
+*.swp
+*.swo
+
+# configuração do GitHub Classroom (contém o secret da turma)
+.classroom50.yaml

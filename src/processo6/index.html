@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MagisCar – Ordem de serviço</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/magiscar.css">
+  <link rel="stylesheet" href="processo6.css">
+  <script src="../js/auth.js"></script>
+  <script>MagisAuth.proteger("os");</script>
+</head>
+<body>
+
+  <!-- topo da pagina (menu e usuário são montados pelo auth.js conforme o perfil) -->
+  <header class="barra-magiscar">
+    <a href="#" class="logo" id="logo">MagisCar</a>
+    <nav class="menu" data-atual="os"></nav>
+    <div class="usuario"></div>
+  </header>
+
+  <main class="conteudo">
+    <p class="trilha">Processo 6 · Ordem de serviço › <strong id="trilha-tela">Pesquisar cliente e veículo</strong></p>
+
+    <!-- 1. pesquisar cliente e veículo -->
+    <section class="tela ativa" id="tela-pesquisar" data-titulo="Pesquisar cliente e veículo" data-perfil="Atendente">
+      <div id="bloco-busca"><!-- só para quem faz o atendimento -->
+      <h1>Pesquisar cliente e veículo</h1>
+
+      <form id="form-pesquisa" class="grade grade-pesquisa" novalidate>
+        <div class="campo">
+          <label for="criterio">Critério de busca</label>
+          <select id="criterio" class="lista">
+            <option value="nome" selected>Nome</option>
+            <option value="doc">CPF/CNPJ</option>
+            <option value="telefone">Telefone</option>
+            <option value="placa">Placa do veículo</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="termo">Termo de busca <span class="obrig">*</span></label>
+          <div class="caixa-busca">
+            <input type="text" id="termo" placeholder="Digite no mínimo 3 caracteres..." autocomplete="off">
+            <img src="../img/search.svg" alt="" width="11" height="11">
+          </div>
+          <small class="erro" data-erro-de="termo"></small>
+        </div>
+        <div class="comandos comandos-inline">
+          <button type="submit" class="botao">Pesquisar</button>
+          <button type="button" class="botao secundario" id="btn-limpar">Limpar</button>
+        </div>
+      </form>
+
+      <h2>Clientes encontrados</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-clientes">
+          <thead><tr><th class="col-sel">Sel.</th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="dica" id="dica-clientes"></p>
+
+      <h2>Veículos vinculados</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-veiculos">
+          <thead><tr><th class="col-sel">Sel.</th><th>Placa</th><th>Marca</th><th>Modelo</th><th class="centro">Ano</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <small class="erro erro-solto" id="erro-veiculo"></small>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-selecionar" disabled>Selecionar cliente e veículo</button>
+        <button type="button" class="botao secundario" id="btn-cadastrar">Cadastrar cliente/veículo</button>
+      </div>
+      </div>
+
+      <h2 class="separador" id="titulo-os">Ordens de serviço</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-os">
+          <thead><tr><th class="col-sel">Sel.</th><th>Nº da OS</th><th>Cliente</th><th>Veículo</th><th>Mecânico</th><th>Entrada</th><th>Situação</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="dica" id="dica-os">Selecione uma OS em andamento para retomar o atendimento de onde parou.</p>
+      <div class="comandos">
+        <button type="button" class="botao secundario" id="btn-retomar" disabled>Retomar OS</button>
+        <button type="button" class="botao secundario" id="btn-restaurar">Restaurar dados de teste</button>
+      </div>
+    </section>
+
+    <!-- 2. consultar agendamento e histórico -->
+    <section class="tela" id="tela-historico" data-titulo="Consultar agendamento e histórico do veículo" data-perfil="Atendente">
+      <h1>Agendamento e histórico do veículo</h1>
+      <form class="grade grade-2" onsubmit="return false" novalidate>
+        <div class="campo">
+          <label for="h-cliente">Cliente</label>
+          <input type="text" id="h-cliente" readonly>
+        </div>
+        <div class="campo">
+          <label for="h-veiculo">Veículo</label>
+          <input type="text" id="h-veiculo" readonly>
+        </div>
+      </form>
+
+      <h2>Agendamentos</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-agendamentos">
+          <thead><tr><th>Data</th><th>Horário</th><th>Serviço</th><th>Situação</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="campo campo-estreito">
+        <label for="h-origem">Agendamento de origem</label>
+        <select id="h-origem" class="lista"></select>
+        <small class="dica-campo">Opcional. Atendimentos sem agendamento também podem gerar OS.</small>
+      </div>
+
+      <h2>Histórico de serviços</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-historico">
+          <thead><tr><th>Data</th><th>Nº da OS</th><th>Serviço realizado</th><th>Mecânico</th><th class="valor">Valor</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-abrir-os">Continuar / Abrir OS</button>
+        <button type="button" class="botao secundario" id="btn-consultar-historico">Consultar histórico</button>
+        <button type="button" class="botao secundario" data-ir="tela-pesquisar">Voltar</button>
+      </div>
+    </section>
+
+    <!-- 3. abrir ordem de serviço -->
+    <section class="tela" id="tela-abrir" data-titulo="Abrir ordem de serviço" data-perfil="Atendente">
+      <h1>Dados da ordem de serviço</h1>
+      <form id="form-abrir" class="grade grade-2" novalidate>
+        <div class="campo">
+          <label for="a-numero">Número da OS <span class="dica-campo">(gerado automaticamente)</span></label>
+          <input type="text" id="a-numero" readonly>
+        </div>
+        <div class="campo">
+          <label for="a-situacao">Situação da OS</label>
+          <input type="text" id="a-situacao" readonly>
+        </div>
+        <div class="campo">
+          <label for="a-cliente">Cliente</label>
+          <input type="text" id="a-cliente" readonly>
+        </div>
+        <div class="campo">
+          <label for="a-veiculo">Veículo</label>
+          <input type="text" id="a-veiculo" readonly>
+        </div>
+        <div class="campo">
+          <label for="a-agendamento">Agendamento vinculado</label>
+          <input type="text" id="a-agendamento" readonly>
+        </div>
+        <div class="campo">
+          <label for="a-entrada">Data e hora de entrada <span class="obrig">*</span></label>
+          <input type="datetime-local" id="a-entrada">
+          <small class="erro" data-erro-de="a-entrada"></small>
+        </div>
+        <div class="campo">
+          <label for="a-km">Quilometragem de entrada <span class="obrig">*</span></label>
+          <input type="number" id="a-km" min="0" step="1" placeholder="Digite a quilometragem...">
+          <small class="erro" data-erro-de="a-km"></small>
+        </div>
+        <div class="campo">
+          <label for="a-mecanico">Mecânico responsável</label>
+          <select id="a-mecanico" class="lista"></select>
+          <small class="dica-campo">Pode ser definido depois, no diagnóstico.</small>
+        </div>
+        <div class="campo campo-largo">
+          <label for="a-relato">Relato do cliente <span class="obrig">*</span></label>
+          <textarea id="a-relato" rows="3" maxlength="1000" placeholder="Descreva o que o cliente relatou..."></textarea>
+          <small class="contador" id="a-relato-contador">0/1000</small>
+          <small class="erro" data-erro-de="a-relato"></small>
+        </div>
+        <div class="campo campo-largo">
+          <span class="rotulo">Serviços solicitados <span class="obrig">*</span></span>
+          <div class="opcoes" id="a-servicos"></div>
+          <small class="erro" data-erro-de="a-servicos"></small>
+        </div>
+        <div class="campo campo-largo">
+          <label for="a-outros">Outros serviços ou descrição</label>
+          <textarea id="a-outros" rows="2" maxlength="500" placeholder="Um serviço por linha..."></textarea>
+        </div>
+      </form>
+      <p class="dica">Campos com <span class="obrig">*</span> são obrigatórios. Informe ao menos um serviço, marcado ou descrito.</p>
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-salvar-abrir">Salvar e abrir OS</button>
+        <button type="button" class="botao secundario" id="btn-voltar-abrir">Voltar</button>
+        <button type="button" class="botao secundario" id="btn-cancelar-abertura">Cancelar abertura</button>
+      </div>
+    </section>
+
+    <!-- 4. diagnóstico e serviços previstos -->
+    <section class="tela" id="tela-diagnostico" data-titulo="Registrar diagnóstico e serviços previstos" data-perfil="Mecânico">
+      <div class="faixa-os" data-faixa></div>
+      <p class="aviso-leitura" data-leitura hidden>Somente consulta: o diagnóstico é registrado pelo mecânico.</p>
+      <h1>Diagnóstico e serviços previstos</h1>
+      <form id="form-diagnostico" class="grade grade-2" onsubmit="return false" novalidate>
+        <div class="campo">
+          <label for="d-mecanico">Mecânico responsável <span class="obrig">*</span></label>
+          <select id="d-mecanico" class="lista"></select>
+          <small class="erro" data-erro-de="d-mecanico"></small>
+        </div>
+        <div class="campo">
+          <label for="d-situacao">Situação da OS</label>
+          <select id="d-situacao" class="lista" disabled>
+            <option>Aberta</option><option>Em diagnóstico</option><option>Aguardando autorização</option><option>Em execução</option>
+          </select>
+          <small class="dica-campo">A situação muda conforme o comando usado.</small>
+        </div>
+        <div class="campo campo-largo">
+          <label for="d-diagnostico">Diagnóstico <span class="obrig">*</span></label>
+          <textarea id="d-diagnostico" rows="4" maxlength="2000" placeholder="Descreva os problemas identificados..."></textarea>
+          <small class="contador" id="d-diagnostico-contador">0/2000</small>
+          <small class="erro" data-erro-de="d-diagnostico"></small>
+        </div>
+
+        <div class="campo campo-largo">
+          <span class="rotulo">Serviços previstos <span class="obrig">*</span></span>
+          <div class="tabela-wrap" id="d-servicos">
+            <table class="tabela tabela-edit">
+              <thead><tr><th>Descrição</th><th class="valor">Valor estimado</th><th class="col-acao"></th></tr></thead>
+              <tbody id="tb-servicos"></tbody>
+            </table>
+          </div>
+          <div><button type="button" class="botao secundario mini" data-add="servicos">+ Adicionar serviço</button></div>
+          <small class="erro" data-erro-de="d-servicos"></small>
+        </div>
+
+        <div class="campo campo-largo">
+          <span class="rotulo">Peças previstas</span>
+          <div class="tabela-wrap" id="d-pecas">
+            <table class="tabela tabela-edit">
+              <thead><tr><th>Item do estoque</th><th class="centro">Quantidade</th><th class="centro">Saldo</th><th class="col-acao"></th></tr></thead>
+              <tbody id="tb-pecas"></tbody>
+            </table>
+          </div>
+          <div><button type="button" class="botao secundario mini" data-add="pecas">+ Adicionar peça</button></div>
+          <small class="dica-campo">É só uma previsão: o saldo do estoque só baixa quando a peça é utilizada.</small>
+          <small class="erro" data-erro-de="d-pecas"></small>
+        </div>
+
+        <div class="campo campo-largo">
+          <span class="rotulo">Serviços adicionais identificados <span class="dica-campo">(não previstos no pedido do cliente)</span></span>
+          <div class="tabela-wrap" id="d-adicionais">
+            <table class="tabela tabela-edit">
+              <thead><tr><th>Descrição</th><th>Justificativa</th><th class="valor">Valor previsto</th><th>Autorização</th><th class="col-acao"></th></tr></thead>
+              <tbody id="tb-adicionais"></tbody>
+            </table>
+          </div>
+          <div><button type="button" class="botao secundario mini" data-add="adicionais">+ Adicionar serviço adicional</button></div>
+          <small class="dica-campo" id="d-dica-adicionais" hidden>OS em execução: inclua os novos serviços adicionais e clique em “Solicitar autorização”. Os já decididos pelo cliente não podem ser alterados.</small>
+          <small class="erro" data-erro-de="d-adicionais"></small>
+        </div>
+
+        <div class="campo campo-largo">
+          <label for="d-obs">Observações técnicas</label>
+          <textarea id="d-obs" rows="2" maxlength="1000" placeholder="Digite aqui..."></textarea>
+        </div>
+      </form>
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-salvar-diag">Salvar diagnóstico</button>
+        <button type="button" class="botao secundario" id="btn-solicitar-aut">Solicitar autorização</button>
+        <button type="button" class="botao secundario" id="btn-iniciar-exec">Iniciar execução</button>
+        <button type="button" class="botao secundario" id="btn-voltar-diag" data-livre>Voltar</button>
+      </div>
+    </section>
+
+    <!-- 5. autorização de serviços adicionais -->
+    <section class="tela" id="tela-autorizacao" data-titulo="Solicitar autorização para serviços adicionais" data-perfil="Atendente">
+      <div class="faixa-os" data-faixa></div>
+      <h1>Autorização de serviços adicionais</h1>
+      <p class="dica dica-topo">Apresente a proposta ao cliente e registre a decisão dele antes de autorizar a execução.</p>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-adicionais">
+          <thead><tr><th>Descrição</th><th>Justificativa</th><th class="valor">Valor previsto</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="resumo-saldo"><span>Valor adicional estimado <strong id="u-total">R$ 0,00</strong></span></div>
+      <p class="dica" id="u-ja-decididos" hidden></p>
+
+      <form id="form-autorizacao" class="grade grade-2 espaco-topo" onsubmit="return false" novalidate>
+        <div class="campo">
+          <label for="u-decisao">Decisão do cliente</label>
+          <select id="u-decisao" class="lista" disabled>
+            <option>Aguardando resposta</option><option>Aprovado</option><option>Recusado</option>
+          </select>
+          <small class="dica-campo">Atualizada pelo comando usado abaixo.</small>
+        </div>
+        <div class="campo">
+          <label for="u-datahora">Data e hora da decisão <span class="obrig">*</span></label>
+          <input type="datetime-local" id="u-datahora">
+          <small class="erro" data-erro-de="u-datahora"></small>
+        </div>
+        <div class="campo">
+          <label for="u-meio">Meio da autorização <span class="obrig">*</span></label>
+          <select id="u-meio" class="lista">
+            <option value="">Selecione...</option>
+            <option>Presencial</option><option>Telefone</option><option>Mensagem</option><option>Outro</option>
+          </select>
+          <small class="erro" data-erro-de="u-meio"></small>
+        </div>
+        <div class="campo">
+          <span class="rotulo">Comprovação (opcional)</span>
+          <div class="upload">
+            <label for="u-arquivo" class="botao secundario">Escolher arquivo</label>
+            <input type="file" id="u-arquivo" accept="application/pdf,image/jpeg,image/png" hidden>
+            <span id="u-arquivo-nome" class="nome-arquivo">Nenhum arquivo</span>
+          </div>
+          <small class="dica-campo">PDF, JPG ou PNG (máx. 5 MB)</small>
+          <small class="erro" data-erro-de="u-arquivo"></small>
+        </div>
+        <div class="campo campo-largo">
+          <label for="u-obs">Observações / comprovação <span class="dica-campo">(obrigatório ao registrar recusa)</span></label>
+          <textarea id="u-obs" rows="3" maxlength="500" placeholder="Informe a justificativa da recusa ou a referência da autorização..."></textarea>
+          <small class="erro" data-erro-de="u-obs"></small>
+        </div>
+      </form>
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-aprovar">Registrar aprovação</button>
+        <button type="button" class="botao secundario" id="btn-recusar">Registrar recusa</button>
+        <button type="button" class="botao secundario" id="btn-desistir">Registrar desistência</button>
+        <button type="button" class="botao secundario" id="btn-aguardar">Manter aguardando</button>
+        <button type="button" class="botao secundario" data-ir="tela-diagnostico">Voltar</button>
+      </div>
+    </section>
+
+    <!-- 6. execução dos serviços -->
+    <section class="tela" id="tela-execucao" data-titulo="Registrar execução dos serviços" data-perfil="Mecânico">
+      <div class="faixa-os" data-faixa></div>
+      <p class="aviso-leitura" data-leitura hidden>Somente consulta: o andamento dos serviços é atualizado pelo mecânico.</p>
+      <h1>Execução dos serviços</h1>
+      <form id="form-execucao" class="grade grade-2" onsubmit="return false" novalidate>
+        <div class="campo">
+          <label for="x-mecanico">Mecânico executor <span class="obrig">*</span></label>
+          <select id="x-mecanico" class="lista"></select>
+          <small class="erro" data-erro-de="x-mecanico"></small>
+        </div>
+        <div class="campo">
+          <label for="x-datahora">Data e hora de execução <span class="obrig">*</span></label>
+          <input type="datetime-local" id="x-datahora">
+          <small class="erro" data-erro-de="x-datahora"></small>
+        </div>
+        <div class="campo campo-largo">
+          <span class="rotulo">Serviços autorizados <span class="obrig">*</span></span>
+          <div class="tabela-wrap" id="x-servicos">
+            <table class="tabela tabela-edit">
+              <thead><tr><th>Serviço</th><th class="valor">Valor</th><th>Situação</th><th>Descrição do realizado</th></tr></thead>
+              <tbody id="tb-execucao"></tbody>
+            </table>
+          </div>
+          <small class="dica-campo">A descrição do realizado é obrigatória para serviço marcado como concluído.</small>
+          <small class="erro" data-erro-de="x-servicos"></small>
+        </div>
+        <div class="campo campo-largo">
+          <label for="x-obs">Observações</label>
+          <textarea id="x-obs" rows="2" maxlength="1000" placeholder="Digite aqui..."></textarea>
+          <small class="erro" data-erro-de="x-obs"></small>
+        </div>
+      </form>
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-salvar-exec">Salvar andamento</button>
+        <button type="button" class="botao secundario" id="btn-ir-pecas" data-livre>Registrar peças utilizadas</button>
+        <button type="button" class="botao secundario" id="btn-exec-adicionais">+ Incluir serviços adicionais</button>
+        <button type="button" class="botao secundario" id="btn-conferir">Encaminhar para conferência</button>
+        <button type="button" class="botao secundario" id="btn-voltar-exec" data-livre>Voltar à lista de OS</button>
+      </div>
+    </section>
+
+    <!-- 7. peças e materiais utilizados -->
+    <section class="tela" id="tela-pecas" data-titulo="Registrar peças e materiais utilizados" data-perfil="Mecânico">
+      <div class="faixa-os" data-faixa></div>
+      <p class="aviso-leitura" data-leitura hidden>Somente consulta: as peças utilizadas são lançadas pelo mecânico.</p>
+      <h1>Peças e materiais utilizados</h1>
+      <form id="form-pecas" class="grade grade-2" onsubmit="return false" novalidate>
+        <div class="campo">
+          <label for="p-item">Item do estoque <span class="obrig">*</span></label>
+          <select id="p-item" class="lista"></select>
+          <small class="erro" data-erro-de="p-item"></small>
+        </div>
+        <div class="campo">
+          <label for="p-saldo">Saldo disponível</label>
+          <input type="text" id="p-saldo" readonly>
+        </div>
+        <div class="campo">
+          <label for="p-qtd">Quantidade utilizada <span class="obrig">*</span></label>
+          <input type="number" id="p-qtd" min="0" step="any" placeholder="Digite a quantidade...">
+          <small class="erro" data-erro-de="p-qtd"></small>
+        </div>
+        <div class="campo">
+          <label for="p-preco">Preço unitário</label>
+          <input type="text" id="p-preco" inputmode="numeric" data-mascara="moeda">
+          <small class="erro" data-erro-de="p-preco"></small>
+        </div>
+        <div class="campo">
+          <label for="p-servico">Serviço associado</label>
+          <select id="p-servico" class="lista"></select>
+        </div>
+      </form>
+
+      <h2>Peças utilizadas</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-pecas">
+          <thead><tr><th class="col-sel">Sel.</th><th>Item</th><th class="centro">Quantidade</th><th class="valor">Valor unitário</th><th class="valor">Subtotal</th><th>Serviço</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="resumo-saldo"><span>Total de peças e materiais <strong id="p-total">R$ 0,00</strong></span></div>
+      <p class="dica">Para corrigir um lançamento, selecione a linha, ajuste a quantidade e clique em Corrigir lançamento. O ajuste do saldo fica registrado no histórico da OS.</p>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-add-peca">Adicionar item</button>
+        <button type="button" class="botao secundario" id="btn-corrigir-peca" disabled>Corrigir lançamento</button>
+        <button type="button" class="botao secundario" id="btn-novo-lancamento" hidden>Novo lançamento</button>
+        <button type="button" class="botao secundario" id="btn-concluir-pecas">Concluir registro de peças</button>
+        <button type="button" class="botao secundario" data-ir="tela-execucao" data-livre>Voltar</button>
+      </div>
+    </section>
+
+    <!-- 8. conferir e finalizar -->
+    <section class="tela" id="tela-conferencia" data-titulo="Conferir e finalizar ordem de serviço" data-perfil="Atendente">
+      <div class="faixa-os" data-faixa></div>
+      <h1>Conferência da ordem de serviço</h1>
+
+      <h2 class="sem-topo">Serviços realizados</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-conf-servicos">
+          <thead><tr><th>Serviço</th><th>Mecânico</th><th>Situação</th><th class="valor">Valor</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h2>Peças e materiais utilizados</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-conf-pecas">
+          <thead><tr><th>Código</th><th>Descrição</th><th class="centro">Quantidade</th><th class="valor">Valor</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="resumo-saldo">
+        <span>Total de serviços <strong id="c-total-serv">R$ 0,00</strong></span>
+        <span>Total de peças <strong id="c-total-pecas">R$ 0,00</strong></span>
+        <span>Valor total <strong class="novo" id="c-total">R$ 0,00</strong></span>
+      </div>
+
+      <h2>Pendências</h2>
+      <div id="c-pendencias" class="pendencias"></div>
+
+      <form class="grade espaco-topo" onsubmit="return false" novalidate>
+        <div class="campo">
+          <label for="c-obs">Observações finais</label>
+          <textarea id="c-obs" rows="2" maxlength="1000" placeholder="Digite aqui..."></textarea>
+        </div>
+      </form>
+
+      <h2>Histórico da OS</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-log">
+          <thead><tr><th>Data e hora</th><th>Usuário</th><th>Evento</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-finalizar">Finalizar OS</button>
+        <button type="button" class="botao secundario" id="btn-corrigir-servicos">Corrigir serviços</button>
+        <button type="button" class="botao secundario" id="btn-manter-pendente">Manter pendente</button>
+        <button type="button" class="botao secundario" id="btn-encerrar-sem">Encerrar sem conclusão</button>
+      </div>
+    </section>
+
+    <!-- 9. entrega do veículo -->
+    <section class="tela" id="tela-entrega" data-titulo="Registrar entrega do veículo" data-perfil="Atendente">
+      <div class="faixa-os" data-faixa></div>
+      <h1>Entrega do veículo</h1>
+      <form id="form-entrega" class="grade grade-2" onsubmit="return false" novalidate>
+        <div class="campo">
+          <label for="e-cliente">Cliente</label>
+          <input type="text" id="e-cliente" readonly>
+        </div>
+        <div class="campo">
+          <label for="e-veiculo">Veículo</label>
+          <input type="text" id="e-veiculo" readonly>
+        </div>
+        <div class="campo">
+          <label for="e-datahora">Data e hora de entrega <span class="obrig">*</span></label>
+          <input type="datetime-local" id="e-datahora">
+          <small class="erro" data-erro-de="e-datahora"></small>
+        </div>
+        <div class="campo">
+          <label for="e-km">Quilometragem de saída <span class="obrig">*</span></label>
+          <input type="number" id="e-km" min="0" step="1">
+          <small class="erro" data-erro-de="e-km"></small>
+        </div>
+        <div class="campo">
+          <label for="e-recebedor">Recebedor do veículo <span class="obrig">*</span></label>
+          <input type="text" id="e-recebedor" maxlength="100" placeholder="Nome de quem retira o veículo...">
+          <small class="erro" data-erro-de="e-recebedor"></small>
+        </div>
+        <div class="campo">
+          <label for="e-situacao">Situação da OS</label>
+          <input type="text" id="e-situacao" readonly>
+        </div>
+        <div class="campo campo-largo">
+          <label for="e-obs">Observações de entrega</label>
+          <textarea id="e-obs" rows="2" maxlength="500" placeholder="Digite aqui..."></textarea>
+          <small class="erro" data-erro-de="e-obs"></small>
+        </div>
+      </form>
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-confirmar-entrega">Confirmar entrega e encerrar OS</button>
+        <button type="button" class="botao secundario" data-ir="tela-conferencia">Voltar</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- janela de confirmação com motivo -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-caixa" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+      <h2 id="modal-titulo"></h2>
+      <p id="modal-texto"></p>
+      <div class="campo" id="modal-campo">
+        <label for="modal-motivo"><span id="modal-rotulo">Motivo</span> <span class="obrig" id="modal-obrig">*</span></label>
+        <textarea id="modal-motivo" rows="3" maxlength="500" placeholder="Digite aqui..."></textarea>
+        <small class="erro" data-erro-de="modal-motivo"></small>
+      </div>
+      <div class="comandos">
+        <button type="button" class="botao" id="modal-ok">Confirmar</button>
+        <button type="button" class="botao secundario" id="modal-voltar">Voltar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- avisos -->
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden>
+    <span class="aviso-icone" id="aviso-icone">✓</span>
+    <span id="aviso-texto"></span>
+  </div>
+
+  <script src="../js/comum.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

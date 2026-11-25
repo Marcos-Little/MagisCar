@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MagisCar – Cadastro de clientes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/magiscar.css">
+  <link rel="stylesheet" href="processo1.css">
+  <script src="../js/auth.js"></script>
+  <script>MagisAuth.proteger("clientes");</script>
+</head>
+<body>
+
+  <!-- topo da pagina (menu e usuário são montados pelo auth.js conforme o perfil) -->
+  <header class="barra-magiscar">
+    <a href="#" class="logo" id="logo">MagisCar</a>
+    <nav class="menu" data-atual="clientes"></nav>
+    <div class="usuario"></div>
+  </header>
+
+  <main class="conteudo">
+    <p class="trilha">Processo 1 · Cadastro de clientes e veículos › <strong id="trilha-tela">Pesquisar cliente</strong></p>
+
+    <!-- 1. pesquisar cliente -->
+    <section class="tela ativa" id="tela-pesquisar" data-titulo="Pesquisar cliente">
+      <h1>Pesquisar cliente</h1>
+
+      <form id="form-pesquisa" class="grade grade-pesquisa" novalidate>
+        <div class="campo">
+          <label for="criterio">Critério de busca</label>
+          <select id="criterio" class="lista">
+            <option value="nome" selected>Nome</option>
+            <option value="doc">CPF/CNPJ</option>
+            <option value="telefone">Telefone</option>
+            <option value="placa">Placa do veículo</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="termo">Termo de busca <span class="obrig">*</span></label>
+          <div class="caixa-busca">
+            <input type="text" id="termo" placeholder="Digite no mínimo 3 caracteres..." autocomplete="off">
+            <img src="../img/search.svg" alt="" width="11" height="11">
+          </div>
+          <small class="erro" data-erro-de="termo"></small>
+        </div>
+        <div class="comandos comandos-inline">
+          <button type="submit" class="botao">Pesquisar</button>
+          <button type="button" class="botao secundario" id="btn-limpar">Limpar</button>
+        </div>
+      </form>
+
+      <h2>Resultados</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-resultados">
+          <thead>
+            <tr>
+              <th class="col-sel">Sel.</th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th class="centro">Veículos vinculados</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="dica" id="dica-resultados"></p>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-selecionar" disabled>Selecionar cliente</button>
+        <button type="button" class="botao secundario" id="btn-novo-cliente">Cadastrar novo cliente</button>
+        <button type="button" class="botao secundario" id="btn-cancelar-processo">Cancelar</button>
+      </div>
+
+      <!-- só o administrador vê: pedidos de exclusão enviados pelos funcionários -->
+      <div id="bloco-solicitacoes" hidden>
+        <h2>Solicitações de exclusão pendentes</h2>
+        <div class="tabela-wrap">
+          <table class="tabela" id="tabela-solicitacoes">
+            <thead><tr><th class="col-sel">Sel.</th><th>Tipo</th><th>Identificação</th><th>Motivo</th><th>Solicitado por</th><th>Data</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="dica">Clique em uma solicitação para avaliar a exclusão.</p>
+      </div>
+    </section>
+
+    <!-- 2. cadastrar cliente -->
+    <section class="tela" id="tela-cliente" data-titulo="Cadastrar cliente">
+      <h1>Dados do cliente</h1>
+      <form id="form-cliente" class="grade grade-2" novalidate>
+        <div class="campo">
+          <label for="c-nome">Nome completo <span class="obrig">*</span></label>
+          <input type="text" id="c-nome" maxlength="100" placeholder="Digite o nome completo...">
+          <small class="erro" data-erro-de="c-nome"></small>
+        </div>
+        <div class="campo">
+          <label for="c-tipo">Tipo de pessoa <span class="obrig">*</span></label>
+          <select id="c-tipo" class="lista">
+            <option value="PF" selected>Pessoa Física</option>
+            <option value="PJ">Pessoa Jurídica</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="c-doc">CPF/CNPJ <span class="obrig">*</span></label>
+          <input type="text" id="c-doc" inputmode="numeric" placeholder="000.000.000-00" data-mascara="cpfcnpj">
+          <small class="erro" data-erro-de="c-doc"></small>
+        </div>
+        <div class="campo">
+          <label for="c-nasc">Data de nascimento</label>
+          <input type="date" id="c-nasc">
+          <small class="erro" data-erro-de="c-nasc"></small>
+        </div>
+        <div class="campo">
+          <label for="c-tel">Telefone <span class="obrig">*</span></label>
+          <input type="tel" id="c-tel" placeholder="(00) 00000-0000" data-mascara="telefone">
+          <small class="erro" data-erro-de="c-tel"></small>
+        </div>
+        <div class="campo">
+          <label for="c-email">E-mail</label>
+          <input type="email" id="c-email" maxlength="100" placeholder="exemplo@email.com">
+          <small class="erro" data-erro-de="c-email"></small>
+        </div>
+        <div class="campo">
+          <label for="c-cep">CEP</label>
+          <input type="text" id="c-cep" inputmode="numeric" placeholder="00000-000" data-mascara="cep">
+          <small class="erro" data-erro-de="c-cep"></small>
+        </div>
+        <div class="campo">
+          <label for="c-end">Endereço</label>
+          <input type="text" id="c-end" maxlength="80" placeholder="Logradouro, número e complemento">
+        </div>
+        <div class="campo">
+          <label for="c-bairro">Bairro</label>
+          <input type="text" id="c-bairro" maxlength="40" placeholder="Bairro">
+        </div>
+        <div class="campo">
+          <label for="c-cidade">Cidade</label>
+          <input type="text" id="c-cidade" maxlength="40" value="Belo Horizonte">
+        </div>
+        <div class="campo">
+          <label for="c-uf">UF</label>
+          <select id="c-uf" class="lista"></select>
+        </div>
+      </form>
+      <p class="dica">Campos com <span class="obrig">*</span> são obrigatórios. Ao salvar, você segue para o cadastro do veículo.</p>
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-salvar-cliente">Salvar</button>
+        <button type="button" class="botao secundario" data-ir="tela-pesquisar">Cancelar</button>
+      </div>
+    </section>
+
+    <!-- 3. conferir e atualizar dados do cliente -->
+    <section class="tela" id="tela-conferir" data-titulo="Conferir e atualizar dados do cliente">
+      <h1>Dados do cliente</h1>
+      <form id="form-conferir" class="grade grade-2" novalidate>
+        <div class="campo">
+          <label for="u-nome">Nome completo <span class="obrig">*</span></label>
+          <input type="text" id="u-nome" maxlength="100">
+          <small class="erro" data-erro-de="u-nome"></small>
+        </div>
+        <div class="campo">
+          <label for="u-doc">CPF/CNPJ</label>
+          <input type="text" id="u-doc" readonly>
+        </div>
+        <div class="campo">
+          <label for="u-tel">Telefone <span class="obrig">*</span></label>
+          <input type="tel" id="u-tel" placeholder="(00) 00000-0000" data-mascara="telefone">
+          <small class="erro" data-erro-de="u-tel"></small>
+        </div>
+        <div class="campo">
+          <label for="u-email">E-mail</label>
+          <input type="email" id="u-email" maxlength="100">
+          <small class="erro" data-erro-de="u-email"></small>
+        </div>
+        <div class="campo campo-largo">
+          <label for="u-end">Endereço completo</label>
+          <input type="text" id="u-end" maxlength="200">
+        </div>
+      </form>
+
+      <h2>Veículos vinculados</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-veiculos-cliente">
+          <thead>
+            <tr><th class="col-sel">Sel.</th><th>Placa</th><th>Marca</th><th>Modelo</th><th>Ano</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="dica">Selecione um veículo para consultar o histórico ou solicitar a exclusão dele (clique de novo para desmarcar). Sem veículo selecionado, a exclusão solicitada é a do cliente.</p>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-salvar-alteracoes">Salvar alterações</button>
+        <button type="button" class="botao secundario" id="btn-conf-veiculo">Cadastrar veículo</button>
+        <button type="button" class="botao secundario" id="btn-conf-historico">Consultar histórico</button>
+        <button type="button" class="botao secundario" id="btn-solicitar-exclusao">Solicitar exclusão</button>
+        <button type="button" class="botao secundario" data-ir="tela-pesquisar">Cancelar</button>
+      </div>
+    </section>
+
+    <!-- 4. cadastrar veículo -->
+    <section class="tela" id="tela-veiculo" data-titulo="Cadastrar veículo">
+      <h1>Dados do veículo</h1>
+      <form id="form-veiculo" class="grade grade-2" novalidate>
+        <div class="campo campo-largo">
+          <label for="v-cliente">Cliente proprietário</label>
+          <input type="text" id="v-cliente" readonly>
+        </div>
+        <div class="campo">
+          <label for="v-placa">Placa <span class="obrig">*</span></label>
+          <input type="text" id="v-placa" maxlength="8" placeholder="AAA-0000 ou AAA0A00" data-mascara="placa" autocomplete="off">
+          <small class="erro" data-erro-de="v-placa"></small>
+        </div>
+        <div class="campo">
+          <label for="v-marca">Marca <span class="obrig">*</span></label>
+          <select id="v-marca" class="lista"></select>
+          <small class="erro" data-erro-de="v-marca"></small>
+        </div>
+        <div class="campo">
+          <label for="v-modelo">Modelo <span class="obrig">*</span></label>
+          <input type="text" id="v-modelo" maxlength="50" placeholder="Digite o modelo">
+          <small class="erro" data-erro-de="v-modelo"></small>
+        </div>
+        <div class="campo">
+          <label for="v-ano">Ano de fabricação <span class="obrig">*</span></label>
+          <input type="number" id="v-ano" min="1950" step="1" placeholder="AAAA">
+          <small class="erro" data-erro-de="v-ano"></small>
+        </div>
+        <div class="campo">
+          <label for="v-cor">Cor</label>
+          <input type="text" id="v-cor" maxlength="30" placeholder="Ex.: Prata">
+        </div>
+        <div class="campo">
+          <label for="v-comb">Combustível</label>
+          <select id="v-comb" class="lista">
+            <option>Gasolina</option>
+            <option>Etanol</option>
+            <option selected>Flex</option>
+            <option>Diesel</option>
+            <option>GNV</option>
+            <option>Elétrico</option>
+            <option>Híbrido</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="v-km">Quilometragem atual</label>
+          <input type="number" id="v-km" min="0" step="1" value="0">
+          <small class="erro" data-erro-de="v-km"></small>
+        </div>
+        <div class="campo">
+          <label for="v-chassi">Chassi</label>
+          <input type="text" id="v-chassi" maxlength="17" placeholder="17 caracteres alfanuméricos" data-mascara="chassi" autocomplete="off">
+          <small class="erro" data-erro-de="v-chassi"></small>
+        </div>
+        <div class="campo campo-largo">
+          <span class="rotulo">Foto do veículo</span>
+          <div class="upload">
+            <label for="v-foto" class="botao secundario">Escolher arquivo</label>
+            <input type="file" id="v-foto" accept="image/jpeg,image/png" hidden>
+            <span id="v-foto-nome" class="nome-arquivo">Nenhum arquivo</span>
+          </div>
+          <small class="dica-campo">JPG ou PNG (máx. 5 MB)</small>
+          <small class="erro" data-erro-de="v-foto"></small>
+          <img id="v-foto-previa" class="previa" alt="Prévia da foto do veículo" hidden>
+        </div>
+      </form>
+      <p class="dica">Campos com <span class="obrig">*</span> são obrigatórios. O veículo fica vinculado ao cliente acima.</p>
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-salvar-veiculo">Salvar</button>
+        <button type="button" class="botao secundario" id="btn-salvar-outro">Salvar e cadastrar outro</button>
+        <button type="button" class="botao secundario" id="btn-cancelar-veiculo">Cancelar</button>
+      </div>
+    </section>
+
+    <!-- 5. consultar histórico do veículo -->
+    <section class="tela" id="tela-historico" data-titulo="Consultar histórico do veículo">
+      <h1>Histórico do veículo</h1>
+      <div class="grade grade-historico">
+        <div class="campo">
+          <label for="h-veiculo">Veículo</label>
+          <select id="h-veiculo" class="lista"></select>
+        </div>
+        <div class="campo">
+          <label for="h-inicio">Data inicial</label>
+          <input type="date" id="h-inicio">
+          <small class="erro" data-erro-de="h-inicio"></small>
+        </div>
+        <div class="campo">
+          <label for="h-fim">Data final</label>
+          <input type="date" id="h-fim">
+        </div>
+      </div>
+
+      <h2>Histórico de serviços</h2>
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-historico">
+          <thead>
+            <tr><th>Data</th><th>Nº da OS</th><th>Serviço realizado</th><th>Mecânico responsável</th><th class="valor">Valor</th><th>Status</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="dica" id="dica-historico"></p>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-orcamento">Solicitar orçamento</button>
+        <button type="button" class="botao secundario" id="btn-voltar-historico">Voltar</button>
+        <button type="button" class="botao secundario" id="btn-concluir-historico">Concluir</button>
+      </div>
+    </section>
+
+    <!-- 6. avaliar exclusão de cadastro (administrador) -->
+    <!--    o funcionário usa a mesma tela só para enviar a solicitação -->
+    <section class="tela" id="tela-exclusao" data-titulo="Avaliar exclusão de cadastro" data-perfil="Administrador">
+      <h1 id="x-titulo">Avaliar exclusão de cadastro</h1>
+      <p class="dica dica-topo" id="x-dica" hidden>A exclusão só é feita depois da aprovação do administrador.</p>
+      <form id="form-exclusao" class="grade grade-2" novalidate>
+        <div class="campo">
+          <label for="x-tipo">Tipo de cadastro</label>
+          <select id="x-tipo" class="lista" disabled>
+            <option value="Cliente">Cliente</option>
+            <option value="Veículo">Veículo</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="x-ident">Identificação</label>
+          <input type="text" id="x-ident" readonly>
+        </div>
+        <div class="campo campo-largo">
+          <label for="x-motivo">Motivo da exclusão <span class="obrig">*</span></label>
+          <textarea id="x-motivo" rows="3" maxlength="500" placeholder="Digite aqui..."></textarea>
+          <small class="contador" id="x-contador">0/500</small>
+          <small class="erro" data-erro-de="x-motivo"></small>
+        </div>
+        <div class="campo campo-largo" id="campo-confirma">
+          <span class="rotulo">Confirmação</span>
+          <div class="opcoes" id="x-confirma">
+            <label><input type="radio" name="x-confirma" id="x-sim" value="sim"> Sim</label>
+            <label><input type="radio" name="x-confirma" id="x-nao" value="nao" checked> Não</label>
+          </div>
+          <small class="erro" data-erro-de="x-confirma"></small>
+        </div>
+      </form>
+
+      <div class="resumo-saldo" id="resumo-exclusao"></div>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-confirmar-exclusao">Confirmar exclusão</button>
+        <button type="button" class="botao secundario" id="btn-recusar-exclusao">Recusar</button>
+        <button type="button" class="botao" id="btn-enviar-solicitacao" hidden>Enviar solicitação</button>
+        <button type="button" class="botao secundario" id="btn-cancelar-exclusao">Cancelar</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- avisos -->
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden>
+    <span class="aviso-icone" id="aviso-icone">✓</span>
+    <span id="aviso-texto"></span>
+  </div>
+
+  <script src="../js/comum.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

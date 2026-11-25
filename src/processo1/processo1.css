@@ -1,0 +1,18 @@
+/* MagisCar – ajustes do Processo 1 (cadastro de clientes e veículos)
+   Carregar depois do magiscar.css. Só tem o que o css compartilhado não cobre. */
+
+/* ---------- Tabelas ---------- */
+.tabela th.centro, .tabela td.centro { text-align: center; }
+.tabela th.valor, .tabela td.valor { text-align: right; white-space: nowrap; }
+
+/* ---------- Histórico: veículo + período na mesma linha ---------- */
+.grade-historico { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); }
+
+/* ---------- Botões de opção (Sim/Não) ---------- */
+.opcoes input[type="radio"] { width: 15px; height: 15px; margin: 0; accent-color: var(--primaria); cursor: pointer; }
+.campo.invalido .opcoes { outline: 1px solid var(--erro); outline-offset: 4px; border-radius: 6px; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 720px) {
+  .grade-historico { grid-template-columns: 1fr; }
+}

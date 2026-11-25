@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MagisCar – Usuários</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/magiscar.css">
+  <script src="../js/auth.js"></script>
+  <script>MagisAuth.proteger("usuarios");</script>
+</head>
+<body>
+
+  <header class="barra-magiscar">
+    <a href="#" class="logo" id="logo">MagisCar</a>
+    <nav class="menu" data-atual="usuarios"></nav>
+    <div class="usuario"></div>
+  </header>
+
+  <main class="conteudo">
+    <p class="trilha">Administração › <strong id="trilha-tela">Usuários do sistema</strong></p>
+
+    <section class="tela ativa" id="tela-usuarios" data-titulo="Usuários do sistema">
+      <h1>Usuários do sistema</h1>
+
+      <div class="tabela-wrap">
+        <table class="tabela" id="tabela-usuarios">
+          <thead><tr><th class="col-sel">Sel.</th><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Situação</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="dica">Selecione um usuário para alterar os dados, trocar a senha ou desativar o acesso.</p>
+
+      <h2 id="titulo-form">Novo usuário</h2>
+      <form id="form-usuario" class="grade grade-2" novalidate>
+        <div class="campo">
+          <label for="s-nome">Nome <span class="obrig">*</span></label>
+          <input type="text" id="s-nome" maxlength="100" placeholder="Nome do funcionário...">
+          <small class="erro" data-erro-de="s-nome"></small>
+        </div>
+        <div class="campo">
+          <label for="s-login">Usuário (login) <span class="obrig">*</span></label>
+          <input type="text" id="s-login" maxlength="50" autocomplete="off" placeholder="Ex.: maria.souza">
+          <small class="erro" data-erro-de="s-login"></small>
+        </div>
+        <div class="campo">
+          <label for="s-perfil">Perfil <span class="obrig">*</span></label>
+          <select id="s-perfil" class="lista">
+            <option value="funcionario">Funcionário</option>
+            <option value="mecanico">Mecânico</option>
+            <option value="admin">Administrador</option>
+          </select>
+          <small class="dica-campo" id="s-perfil-dica"></small>
+          <small class="erro" data-erro-de="s-perfil"></small>
+        </div>
+        <div class="campo">
+          <label for="s-senha">Senha <span class="obrig" id="s-senha-obrig">*</span></label>
+          <input type="password" id="s-senha" maxlength="50" autocomplete="new-password" placeholder="Mínimo de 6 caracteres">
+          <small class="dica-campo" id="s-senha-dica" hidden>Deixe em branco para manter a senha atual.</small>
+          <small class="erro" data-erro-de="s-senha"></small>
+        </div>
+      </form>
+
+      <div class="comandos">
+        <button type="button" class="botao" id="btn-salvar-usuario">Salvar</button>
+        <button type="button" class="botao secundario" id="btn-ativar" hidden>Desativar acesso</button>
+        <button type="button" class="botao secundario" id="btn-novo-usuario">Novo usuário</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden>
+    <span class="aviso-icone" id="aviso-icone">✓</span>
+    <span id="aviso-texto"></span>
+  </div>
+
+  <script src="../js/comum.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
